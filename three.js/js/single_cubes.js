@@ -1,6 +1,7 @@
 GRID_VIZARDS.SingleCubes = function (scene, grid) {
     this.scene = scene;
     this.grid = grid;
+    this.geometry = new THREE.BoxBufferGeometry(0.5, 0.5, 0.5);
     this.init = function () {
         var vec = THREE.Vector3(0, 0, 0);
         for (z = 0; z < this.grid.cell_count.z; ++z) {
@@ -17,9 +18,8 @@ GRID_VIZARDS.SingleCubes = function (scene, grid) {
         }
     }
     this.add_cube = function (pos, color) {
-        var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
         var material = new THREE.MeshBasicMaterial({ color: color });
-        var cube = new THREE.Mesh(geometry, material);
+        var cube = new THREE.Mesh(this.geometry, material);
         cube.position.x = pos.x;
         cube.position.y = pos.y;
         cube.position.z = pos.z;
