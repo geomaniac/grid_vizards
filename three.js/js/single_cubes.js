@@ -54,6 +54,7 @@ GRID_VIZARDS.SingleCubes = function (scene, grid) {
         geometry.addAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
         geometry.addAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
         geometry.computeBoundingSphere();
+        geometry.center();
         var material = new THREE.PointsMaterial({ size: 0.5, vertexColors: THREE.VertexColors });
         points = new THREE.Points(geometry, material);
         scene.add(points);
