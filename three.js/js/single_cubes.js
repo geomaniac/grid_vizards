@@ -2,13 +2,16 @@ GRID_VIZARDS.SingleCubes = function (scene, grid) {
     this.scene = scene;
     this.grid = grid;
     this.geometry = new THREE.BoxBufferGeometry(0.5, 0.5, 0.5);
-    this.init = function () {
+    this.init_ = function () {
         this.draw_x_slice(0);
         this.draw_y_slice(0);
         this.draw_z_slice(0);
         this.draw_x_slice(this.grid.cell_count.x - 1);
         this.draw_y_slice(this.grid.cell_count.y - 1);
         this.draw_z_slice(this.grid.cell_count.z - 1);
+    }
+    this.init = function() {
+        this.draw_all_cells();
     }
     this.add_cube = function (pos, color) {
         var material = new THREE.MeshBasicMaterial({ color: color });
@@ -31,7 +34,10 @@ GRID_VIZARDS.SingleCubes = function (scene, grid) {
         }
     }
     this.draw_all_cells = function () {
-        var vec;
+        var vec, color;
+        var geometry = new THREE.BufferGeometry();
+        var positions = [];
+        var colors = [];
         for (z = 0; z < this.grid.cell_count.z; ++z) {
             for (y = 0; y < this.grid.cell_count.y; ++y) {
                 for (x = 0; x < this.grid.cell_count.x; ++x) {
@@ -39,11 +45,18 @@ GRID_VIZARDS.SingleCubes = function (scene, grid) {
                     vec.addScaledVector(this.grid.axis.w, z);
                     vec.addScaledVector(this.grid.axis.v, y);
                     vec.addScaledVector(this.grid.axis.u, x);
-                    var color = this.get_color(0, x, y, z);
-                    this.add_cube(vec, color);
+                    positions.push(vec.x, vec.y, vec.z);
+                    color = new THREE.Color(this.get_color(0, x, y, z));
+                    colors.push(color.r, color.g, color.b);
                 }
             }
         }
+        geometry.addAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        geometry.addAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+        geometry.computeBoundingSphere();
+        var material = new THREE.PointsMaterial({ size: 0.5, vertexColors: THREE.VertexColors });
+        points = new THREE.Points(geometry, material);
+        scene.add(points);
     }
     this.draw_x_slice = function (num) {
         var vec;
