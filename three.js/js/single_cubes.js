@@ -10,18 +10,31 @@ GRID_VIZARDS.SingleCubes = function (scene, grid) {
                     vec.addScaledVector(this.grid.axis.w, z);
                     vec.addScaledVector(this.grid.axis.v, y);
                     vec.addScaledVector(this.grid.axis.u, x);
-                    this.add_cube(vec)
+                    var color = this.get_color(0, x, y, z);
+                    this.add_cube(vec, color);
                 }
             }
         }
     }
-    this.add_cube = function (pos) {
+    this.add_cube = function (pos, color) {
         var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-        var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        var material = new THREE.MeshBasicMaterial({ color: color });
         var cube = new THREE.Mesh(geometry, material);
         cube.position.x = pos.x;
         cube.position.y = pos.y;
         cube.position.z = pos.z;
         this.scene.add(cube);
+    }
+    this.get_color = function (prop_index, u, v, w) {
+        var prop = this.grid.props[prop_index];
+        var data_index = this.grid.get_array_index(u, v, w);
+        var value = prop.data[data_index];
+        if (value < 34) {
+            return 0x00ff00;
+        } else if (value < 67) {
+            return 0xffff00;
+        } else {
+            return 0xff0000;
+        }
     }
 }
