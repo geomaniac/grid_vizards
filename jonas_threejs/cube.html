@@ -4,6 +4,7 @@
 		<title>three.js webgl - nearest neighbour</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="style.css" />
 		<style>
 			html, body {
 				width: 100%;
@@ -28,19 +29,199 @@
 	</head>
 	<body>
 
-		<div id="info"><a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - typed arrays - nearest neighbour for 500,000 sprites</div>
+	    <div id="drop-area">
+			<form class="my-form">
+			  <p>Upload multiple files with the file dialog or by dragging and dropping images onto the dashed region</p>
+			  <input type="file" id="fileElem" multiple accept="image/*" onchange="handleFiles(this.files)">
+			  <label class="button" for="fileElem">Select some files</label>
+			</form>
+		</div>
+		  <button onclick="doThreeJS()">dasdas</button>
+	
+		<div id="info" style="display:none;"><a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - typed arrays - nearest neighbour for 500,000 sprites</div>
 
+		<script type="text/javascript">
+
+
+            let file_Metadata = {}
+            file_Metadata.properties = [];
+            let properties = [];
+
+
+            let dropArea = document.getElementById('drop-area')
+            ;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false)
+            })
+
+            function preventDefaults (e) {
+            e.preventDefault()
+            e.stopPropagation()
+            }
+
+
+            ;['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false)
+            })
+
+            ;['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false)
+            })
+
+            function highlight(e) {
+            dropArea.classList.add('highlight')
+            }
+
+            function unhighlight(e) {
+            dropArea.classList.remove('highlight')
+            }
+
+
+        dropArea.addEventListener('drop', handleDrop, false)
+
+        function handleDrop(e) {
+        let dt = e.dataTransfer
+        let files = dt.files
+
+        handleFiles(files)
+        }
+
+        let what = [];
+
+        
+
+        function handleFiles(files) {
+        
+        let fileArray = [...files]
+        var actions = fileArray.map(uploadFile);
+        
+        }
+
+        
+
+
+        function parseValues(property) {
+            
+            let result = {}
+            
+            let name = property[0];
+            
+            result[name+"_X"] = property[1]
+            result[name+"_Y"] = property[2]
+            result[name+"_Z"] = property[3]
+            file_Metadata[name] = result;
+        }
+
+
+        function uploadFile(file, value) {
+    
+
+        var read = new FileReader();
+        
+        if(file.name.split(".").length === 1) {
+            read.readAsArrayBuffer(file);
+        } else {
+            read.readAsBinaryString(file);
+        }
+
+        read.onloadend = function(){                               
+           
+            // If file is not metadata file
+            
+                if(file.name.split(".").length === 1) {
+                
+                let exists = false;
+                
+                file_Metadata.properties.map(property => {
+                    console.log(String(property.filename));
+                    console.log(String(file.name))
+                    let why = property.filename === file.name
+                    if(why) {
+                        console.log("yeah")
+                        console.log(read.result)
+
+                        
+                        
+                        var view   = new Float32Array(read.result);
+                        var whatever = new DataView(read.result).getFloat32(0, false) 
+                        console.log(whatever)
+                        console.log(view)
+                        property.values = view
+                        exists = true;
+                    }
+                    console.log(property)
+                    
+                    console.log(exists)
+                })
+                
+                if(!exists) {
+                    properties.push({"filename": file.name, "value" : read.result})
+                }     
+
+                
+                console.log(file_Metadata)
+                
+                
+            } else {
+            // Metadata file
+            console.log("nay")
+            let metadata = read.result.split("\n");
+            metadata.map(data => {
+                let property = data.split(" ")[0]
+
+                    if((property === 'AXIS_O') || (property === 'AXIS_U') || (property === 'AXIS_V') || (property === 'AXIS_W') || (property === 'AXIS_MIN') || (property === 'AXIS_MAX') || (property === 'AXIS_N')) {
+                        let values = data.split(" ")
+                        parseValues(values)
+                    }
+
+                    if(property === 'PROPERTY') {
+                        let values = data.split(" ")
+                        let name = values[2];
+                        let id = values[1]
+                        
+                        file_Metadata.properties.push({ "id": id, "name" : name});
+                    }
+
+                    if(property === 'PROP_FILE') {
+                        let values = data.split(" ")
+                        file_Metadata.properties.map(property => {
+                            if(property.id === values[1]) {
+                                property.filename = values[2];
+                            }
+                        })
+                    }
+                    
+                    
+            })
+            console.log(properties);
+            if(properties.length > 0) {
+                console.log("wtf")
+                properties.map(property => {
+                    fileMetadata.properties.map(metaproperty => {
+                        if((!metaproperty.values) && (metaproperty.filename === property.filename)) {
+                            metaproperty.values = property.value
+                        }
+                    })
+                })
+            }}} 
+        }
+		
+
+        </script>
+		
 		<script src="three.js"></script>
 		<script src="js/TypedArrayUtils.js"></script>
 		<script src="js/controls/FirstPersonControls.js"></script>
 		<script type="x-shader/x-vertex" id="vertexshader">
 
+		
+		
+		
 			//uniform float zoom;
 
 			attribute float alpha;
 
 			varying float vAlpha;
-			varying vec4 vColor;
+			varying vec4 vExtraData;
 
 			void main() {
 
@@ -50,20 +231,17 @@
 
 				gl_PointSize = 10.0 * ( 300.0 / -mvPosition.z );
 				
-				vColor.r = position.x / 1000.0;
-				vColor.g = position.y / 1000.0;
-				vColor.b = position.z / 1000.0;
-				vColor.a = 1.0;
+				vExtraData.a = 1.0;
 				
 				gl_Position = projectionMatrix * mvPosition;
 				
 				
-				if(-800.0 < mvPosition.z)
-				{
-					vColor.a = 0.0;
-					gl_PointSize = 0.0;
-					gl_Position = vec4(-1000,-1000,-1000,-1000);
-				}
+				//if(-800.0 < mvPosition.z)
+				//{
+				//	vExtraData.a = 0.0;
+				//	gl_PointSize = 0.0;
+				//	gl_Position = vec4(-1000,-1000,-1000,-1000);
+				//}
 
 			}
 
@@ -74,21 +252,22 @@
 			uniform sampler2D tex1;
 
 			varying float vAlpha;
-			varying vec4 vColor;
+			varying vec4 vExtraData;
 
 			void main() {
-				if(vColor.a < 0.1)
+				if(vExtraData.a < 0.1)
 					discard;
 					
 				vec4 color = texture2D( tex1, gl_PointCoord );
 				
 				if(color.a < 0.5)
 					discard;
-				if((vColor.r / vColor.g) < 1.0
-				&& (vColor.b / vColor.g) < 1.0)
-					discard;
+				//if((vExtraData.r / vExtraData.g) < 1.0
+				//&& (vExtraData.b / vExtraData.g) < 1.0)
+				//	discard;
 					
-				gl_FragColor = vColor;
+				gl_FragColor = vec4(0,0,0,1);
+				gl_FragColor.r = vAlpha;
 				gl_FragColor.a = color.a;
 				gl_FragColor.r = ( 1.0 - gl_FragColor.r ) * vAlpha + gl_FragColor.r;
 
@@ -100,7 +279,9 @@
 			var camera, scene, renderer;
 			var controls;
 
-			var amountOfParticles = 5000000, maxDistance = Math.pow( 120, 2 );
+
+			
+			var maxDistance = Math.pow( 120, 2 );
 			var positions, alphas, particles, _particleGeom;
 
 			var clock = new THREE.Clock();
@@ -109,8 +290,18 @@
 			var instructions = document.getElementById( 'instructions' );
 
 
-			function init() {
-
+			function init(i_prop_data) {
+			
+				var prop_max_x = i_prop_data.AXIS_N.AXIS_N_X;
+				var prop_max_y = i_prop_data.AXIS_N.AXIS_N_Y;
+				var prop_max_z = i_prop_data.AXIS_N.AXIS_N_Z;
+				
+				
+				var max_size_x = prop_max_x;
+				var max_size_y = prop_max_y;
+				var max_size_z = prop_max_z;
+				
+				var amountOfParticles = 6000000;// max_size_x * max_size_y * max_size_z;
 				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000000 );
 
 				scene = new THREE.Scene();
@@ -134,6 +325,7 @@
 
 				//
 
+				
 				renderer = new THREE.WebGLRenderer(); // Detector.webgl? new THREE.WebGLRenderer(): new THREE.CanvasRenderer()
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
@@ -168,6 +360,9 @@
 
 				};
 
+				var data = JSON.parse(localStorage.getItem('data'));
+				console.log(data);
+				
 				positions = new Float32Array( amountOfParticles * 3 );
 				alphas = new Float32Array( amountOfParticles );
 
@@ -181,17 +376,52 @@
 				particles.material.blending = THREE.NormalBlending;
 				//particles.material.combine = THREE.MixOperation;
 				
+				var x_offset = 0;
+				var y_offset = 0;
+				var z_offset = 0;
 				
-				for ( var x = 0; x < amountOfParticles; x ++ ) {
+				var prop_LOD_modifier = 1;// only used as offset for now (only take every x'th point)
+				var prop_value_modifier = 0.01;// only used as offset for now (only take every x'th point)
+				
+				console.log("creating own grid")
+				
+				var grid_point_count = 0;
+				for ( var curr_z = 0; curr_z < max_size_z; curr_z++ ) {
+					for ( var curr_y = 0; curr_y < max_size_y; curr_y++ ) {
+						for ( var curr_x = 0; curr_x < max_size_x; curr_x++ ) {
+							var prop_x = x_offset + curr_x * prop_LOD_modifier;
+							var prop_y = y_offset + curr_y * prop_LOD_modifier;
+							var prop_z = z_offset + curr_z * prop_LOD_modifier;
+							var prop_index = (prop_x + prop_y * prop_max_x + prop_z * prop_max_x * prop_max_y);
+							var prop_data =  i_prop_data.properties[0].values[ prop_index ];
+							
+							
+							//var own_grid_index = (curr_x + curr_y * max_size_x + curr_z * max_size_x * max_size_y);
+							
+							
+							if(prop_data == -99999)
+							{
 
-					positions[ x * 3 + 0 ] = Math.random() * 1000;
-					positions[ x * 3 + 1 ] = Math.random() * 1000;
-					positions[ x * 3 + 2 ] = Math.random() * 1000;
-
-					alphas[ x ] = 1.0;
-
+								
+							}else{
+								positions[ 3 * grid_point_count + 0 ] = 3 * curr_x;
+								positions[ 3 * grid_point_count + 1 ] = 3 * curr_y;
+								positions[ 3 * grid_point_count + 2 ] = 3 * curr_z;
+								alphas[ grid_point_count ] = prop_data * prop_value_modifier;
+								grid_point_count++;
+							}
+						}
+					}
 				}
-
+				
+				for ( var i_rest = grid_point_count; i_rest < amountOfParticles; i_rest++ ) {
+					positions[ 3 * i_rest + 0 ] = -100000;
+					positions[ 3 * i_rest + 1 ] = -100000;
+					positions[ 3 * i_rest + 2 ] = -100000;
+					alphas[ i_rest ] = 0;
+				}
+				
+				console.log(grid_point_count);
 
 				var measureStart = new Date().getTime();
 
@@ -264,9 +494,13 @@
 
 			}
 
-
-			init();
-			animate();
+			function doThreeJS() {
+				document.getElementById("drop-area").style.display="none";
+				document.getElementById("info").style.display="block";
+				
+				init(file_Metadata);
+				animate();
+			}
 
 		</script>
 	</body>
