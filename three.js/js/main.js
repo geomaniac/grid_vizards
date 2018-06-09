@@ -1,12 +1,15 @@
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 var controls = new THREE.OrbitControls(camera);
+var stats = new Stats();
+stats.showPanel( 1 ); // 0: fps, 1: ms, 2: mb, 3+: custom
 
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 var container = document.createElement('div');
 document.body.appendChild(container);
 container.appendChild(renderer.domElement);
+container.appendChild(stats.dom);
 var o = new THREE.Vector3(0, 0, 0);
 var u = new THREE.Vector3(1, 0, 0);
 var v = new THREE.Vector3(0, 1, 0);
@@ -23,5 +26,6 @@ camera.position.z = 5;
 function animate() {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
+    stats.update();
 }
 animate();
