@@ -1,0 +1,203 @@
+<html>
+
+    <head>
+
+        <link rel="stylesheet" type="text/css" href="style.css" />
+
+    </head>
+    <body>
+        <h1>whatever</h1>
+
+        <div id="drop-area">
+            <form class="my-form">
+              <p>Upload multiple files with the file dialog or by dragging and dropping images onto the dashed region</p>
+              <input type="file" id="fileElem" multiple accept="image/*" onchange="handleFiles(this.files)">
+              <label class="button" for="fileElem">Select some files</label>
+            </form>
+          </div>
+          <button onclick="dropHandler(event);">dasdas</button>
+
+          <script type="text/javascript">
+
+
+            let file_Metadata = {}
+            file_Metadata.properties = [];
+            let properties = [];
+
+
+            let dropArea = document.getElementById('drop-area')
+            ;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false)
+            })
+
+            function preventDefaults (e) {
+            e.preventDefault()
+            e.stopPropagation()
+            }
+
+
+            ;['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false)
+            })
+
+            ;['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false)
+            })
+
+            function highlight(e) {
+            dropArea.classList.add('highlight')
+            }
+
+            function unhighlight(e) {
+            dropArea.classList.remove('highlight')
+            }
+
+
+        dropArea.addEventListener('drop', handleDrop, false)
+
+        function handleDrop(e) {
+        let dt = e.dataTransfer
+        let files = dt.files
+
+        handleFiles(files)
+        }
+
+        let what = [];
+
+        
+
+        function handleFiles(files) {
+        
+        let fileArray = [...files]
+        var actions = fileArray.map(uploadFile);
+        
+        }
+
+        
+
+
+        function parseValues(property) {
+            
+            let result = {}
+            
+            let name = property[0];
+            
+            result[name+"_X"] = property[1]
+            result[name+"_Y"] = property[2]
+            result[name+"_Z"] = property[3]
+            file_Metadata[name] = result;
+        }
+
+
+        function uploadFile(file, value) {
+    
+
+        var read = new FileReader();
+        
+        if(file.name.split(".").length === 1) {
+            read.readAsArrayBuffer(file);
+        } else {
+            read.readAsBinaryString(file);
+        }
+
+        read.onloadend = function(){                               
+           
+            // If file is not metadata file
+            
+                if(file.name.split(".").length === 1) {
+                
+                let exists = false;
+                
+                file_Metadata.properties.map(property => {
+                    console.log(String(property.filename));
+                    console.log(String(file.name))
+                    let why = property.filename === file.name
+                    if(why) {
+                        console.log("yeah")
+                        console.log(read.result)
+
+                        
+                        
+                        var view   = new Float32Array(read.result);
+                        var whatever = new DataView(read.result).getFloat32(0, false) 
+                        console.log(whatever)
+                        console.log(view)
+                        property.values = view
+                        exists = true;
+                    }
+                    console.log(property)
+                    
+                    console.log(exists)
+                })
+                
+                if(!exists) {
+                    properties.push({"filename": file.name, "value" : read.result})
+                }     
+
+                
+                console.log(file_Metadata)
+                
+                
+            } else {
+            // Metadata file
+            console.log("nay")
+            let metadata = read.result.split("\n");
+            metadata.map(data => {
+                let property = data.split(" ")[0]
+
+                    if((property === 'AXIS_O') || (property === 'AXIS_U') || (property === 'AXIS_V') || (property === 'AXIS_W') || (property === 'AXIS_MIN') || (property === 'AXIS_MAX') || (property === 'AXIS_N')) {
+                        let values = data.split(" ")
+                        parseValues(values)
+                    }
+
+                    if(property === 'PROPERTY') {
+                        let values = data.split(" ")
+                        let name = values[2];
+                        let id = values[1]
+                        
+                        file_Metadata.properties.push({ "id": id, "name" : name});
+                    }
+
+                    if(property === 'PROP_FILE') {
+                        let values = data.split(" ")
+                        file_Metadata.properties.map(property => {
+                            if(property.id === values[1]) {
+                                property.filename = values[2];
+                            }
+                        })
+                    }
+                    
+                    
+            })
+            console.log(properties);
+            if(properties.length > 0) {
+                console.log("wtf")
+                properties.map(property => {
+                    fileMetadata.properties.map(metaproperty => {
+                        if((!metaproperty.values) && (metaproperty.filename === property.filename)) {
+                            metaproperty.values = property.value
+                        }
+                    })
+                })
+            }
+
+            }
+            
+
+            console.log(file_Metadata)
+            }
+            
+            
+    
+
+
+            
+        }
+
+
+
+
+
+          </script>
+    </body>
+</html>
