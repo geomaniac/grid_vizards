@@ -31,6 +31,7 @@
     cursor: pointer;
     border-radius: 5px;
     border: 1px solid #ccc;
+    outline: 0;
   }
   .button:hover {
     background: #ddd;
