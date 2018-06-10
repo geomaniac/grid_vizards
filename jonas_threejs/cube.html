@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js webgl - nearest neighbour</title>
+		<title>Gridvizards going ham</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link rel="stylesheet" type="text/css" href="style.css" />
@@ -38,7 +38,7 @@
 			  <label class="button" for="fileElem">Select some files</label>
 			</form>
 		</div>
-		<div class="controlpanel">
+		<div style="display:none;" class="controlpanel" id="controlpanel">
 			<div class="sliders">
 				<div class="slider">
 					<label>Slice X</label>
@@ -55,7 +55,7 @@
 			</div>
 			<div class="sliders">
 				<div class="slider slider-flex">
-					<button onClick="filter();">Filter now</button>
+					<button onClick="start_filter();">Filter now</button>
 					<div class="container">
 						<label>Property:</label>
 						<select id="property" onchange="changeProperty();">
@@ -83,9 +83,8 @@
 				</div>
 			</div>
 		</div>
-		  <button onclick="doThreeJS()">dasdas</button>
+		  <button onclick="doThreeJS()" class="dasdas" id="dasdas">Show Projection</button>
 	
-		<div id="info" style="display:none;"><a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - typed arrays - nearest neighbour for 500,000 sprites</div>
 
 		<script type="text/javascript">
 
@@ -300,11 +299,11 @@
 			var slider4 = document.getElementById('slider4');
 
 			noUiSlider.create(slider4, {
-				start: [300],
+				start: [300, 2500],
 				connect: true,
 				range: {
 					'min': 0,
-					'max': 1000
+					'max': 2500
 				}
 			});
 
@@ -313,24 +312,33 @@
 			function sliderChange ( values, handle, unencoded, tap, input_pos ) {
 				g_x_cut_min = values[0]
 				g_x_cut_max = values[1]
-				changeProperty()
+				start_filter()
 			}
 			let g_y_cut_min = 0;
 			let g_y_cut_max = 100;
 			function slider2Change ( values, handle, unencoded, tap, input_pos ) {
 				g_y_cut_min = values[0]
 				g_y_cut_max = values[1]
-				changeProperty()
+				start_filter()
 			}
 			let g_z_cut_min = 0;
 			let g_z_cut_max = 100;
 			function slider3Change ( values, handle, unencoded, tap, input_pos ) {
 				g_z_cut_min = values[0]
 				g_z_cut_max = values[1]
-				changeProperty()
+				start_filter()
 			}
-
-			function changeProperty() {
+			function slider4Change ( values, handle, unencoded, tap, input_pos ) {
+			console.log("tetteteetetet")
+				pointShaderMaterial.uniforms.min_distance.value = values[0];
+				pointShaderMaterial.uniforms.min_distance.needsUpdate = true;
+				let clip_max = values[1];
+				if(clip_max == 2500)
+					clip_max = 1000000;
+				pointShaderMaterial.uniforms.max_distance.value = clip_max;
+				pointShaderMaterial.uniforms.min_distance.needsUpdate = true;
+			}
+			function start_filter() {
 				let property = document.getElementById('property').value
 				if(property === 0){
 					// no filtering for 0 ("None")
@@ -340,6 +348,10 @@
 					console.log("ordered filtering")
 					filterPoints()
 				}
+			}
+			
+			function changeProperty() {
+
 			}
 			
 			let g_filter_min = 0;
@@ -354,6 +366,7 @@
 			slider.noUiSlider.on("change", sliderChange);
 			slider2.noUiSlider.on("change", slider2Change);
 			slider3.noUiSlider.on("change", slider3Change);
+			slider4.noUiSlider.on("slide", slider4Change);
 
 
 // *************************** Grid Code **********************
@@ -405,7 +418,8 @@
 
 			function doThreeJS() {
 				document.getElementById("drop-area").style.display="none";
-				document.getElementById("info").style.display="block";
+				document.getElementById("dasdas").style.display="none";
+				document.getElementById("controlpanel").style.display="block";
 				
 				init(file_Metadata);
 				animate();
@@ -443,7 +457,7 @@
 				var prop_max_z = i_prop_data.AXIS_N.AXIS_N_Z;
 				g_grid_distance_multiplier = 3; // defines how far apart single cells are from each other
 				
-				var prop_divisor = 1;
+				var prop_divisor = 2;
 				max_size_x = Math.ceil(prop_max_x / prop_divisor);
 				max_size_y = Math.ceil(prop_max_y / prop_divisor);
 				max_size_z = Math.ceil(prop_max_z / prop_divisor);
