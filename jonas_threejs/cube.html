@@ -270,6 +270,14 @@
 			varying float vAlpha;
 			varying vec4 vExtraData;
 
+			vec3 getRainbowColor (float value, float maxLength){
+				float i = (value * 255.0 / maxLength);
+				int r = int(sin(0.024 * i + 0.0) * 127.0 + 128.0);
+				int g = int(sin(0.024 * i + 2.0) * 127.0 + 128.0);
+				int b = int(sin(0.024 * i + 4.0) * 127.0 + 128.0);
+				return vec3(r,g,b);
+			}
+			
 			void main() {
 				if(vExtraData.a < 0.1)
 					discard;
@@ -283,7 +291,13 @@
 				//	discard;
 					
 				gl_FragColor = vec4(0,0,0,1);
-				gl_FragColor.r = vAlpha;
+				float max_value = 120.0;
+				float min_value = -30.0;
+				float i = ((vAlpha - min_value) * 255.0 / max_value);
+				float r = (sin(0.024 * i + 0.0) * 127.0 + 128.0)/255.0;
+				float g = (sin(0.024 * i + 2.0) * 127.0 + 128.0)/255.0;
+				float b = (sin(0.024 * i + 4.0) * 127.0 + 128.0)/255.0;
+				gl_FragColor.rgb =  vec3(r,g,b);
 				gl_FragColor.a = color.a;
 				gl_FragColor.r = ( 1.0 - gl_FragColor.r ) * vAlpha + gl_FragColor.r;
 
@@ -357,16 +371,20 @@
 			var instructions = document.getElementById( 'instructions' );
 
 
+			
+			
+// ************************* INIT ***********************
+
 			function init(i_prop_data) {
 			
 				var prop_max_x = i_prop_data.AXIS_N.AXIS_N_X;
 				var prop_max_y = i_prop_data.AXIS_N.AXIS_N_Y;
 				var prop_max_z = i_prop_data.AXIS_N.AXIS_N_Z;
 				
-				
-				var max_size_x = prop_max_x;
-				var max_size_y = prop_max_y;
-				var max_size_z = prop_max_z;
+				var prop_divisor = 1;
+				var max_size_x = Math.ceil(prop_max_x / prop_divisor);
+				var max_size_y = Math.ceil(prop_max_y / prop_divisor);
+				var max_size_z = Math.ceil(prop_max_z / prop_divisor);
 				
 				var amountOfParticles = 6000000;// max_size_x * max_size_y * max_size_z;
 				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000000 );
@@ -447,11 +465,14 @@
 				var y_offset = 0;
 				var z_offset = 0;
 				
-				var prop_LOD_modifier = 1;// only used as offset for now (only take every x'th point)
-				var prop_value_modifier = 0.01;// only used as offset for now (only take every x'th point)
+				var prop_LOD_modifier = prop_divisor;// only used as offset for now (only take every x'th point)
+				var prop_value_modifier = 1;// only used as offset for now (only take every x'th point)
 				
 				console.log("creating own grid")
 				
+				
+				var max = 0.0;
+				var min = 1000000.0;
 				var grid_point_count = 0;
 				for ( var curr_z = 0; curr_z < max_size_z; curr_z++ ) {
 					for ( var curr_y = 0; curr_y < max_size_y; curr_y++ ) {
@@ -474,7 +495,12 @@
 								positions[ 3 * grid_point_count + 0 ] = 3 * curr_x;
 								positions[ 3 * grid_point_count + 1 ] = 3 * curr_y;
 								positions[ 3 * grid_point_count + 2 ] = 3 * curr_z;
-								alphas[ grid_point_count ] = prop_data * prop_value_modifier;
+								var final_data = prop_data * prop_value_modifier;
+								alphas[ grid_point_count ] = final_data;
+								if(final_data < min)
+									min = final_data;
+								if(final_data > max)
+									max = final_data;
 								grid_point_count++;
 							}
 						}
@@ -489,6 +515,8 @@
 				}
 				
 				console.log(grid_point_count);
+				console.log(min);
+				console.log(max);
 
 				var measureStart = new Date().getTime();
 
