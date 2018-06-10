@@ -25,31 +25,49 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section data-background="url('img/2018-06-06 16_04_27-GST Web - Testinstanz.png')">
+				<section data-background="url('img/image.png')">
 
 						<br />
 					<h1 class="text-landing">Grid Vizards</h1>
 
 				</section>
+
+				<section>
+					<h1>Team</h1>
+					<br />
+					<img style="border:0;background-color:#fff" src="img/giga_logo_and_text.png" width="351" height="191" />
+						<ul style="list-style-type: none">
+							<li><h2>Fabian</h2></li>
+							<li><h2>Daniel</h2></li>
+							<li><h2>Jonas</h2></li>
+							<li><h2>Paul</h2></li>
+						</ul>
+				</section>
+
 				<section>
 					<h1>Objective</h1>
 					<br />
 					<p class="fragment">
-						Display 10<sup>8</sup>-10<sup>9</sup> grid  cells meaningful in a browser.
+						Display 10<sup>8</sup>-10<sup>9</sup> grid  cells meaningful in a browser(!!).
+						<sub class="fragment" style="font-size:smaller">10<sup>8</sup>cells mean ~400 MB per property (min 4)</sub>
 					</p>
-					<p class="fragment">
-						Let the user change the representation on the fly.
-					</p>
+					<div class="fragment">
+						<p class="">
+							Let the user change the representation on the fly.
+						</p>
+
+					</div>
+
 				</section>
 				<section>
-					<h1>Problems</h1>
+					<h1>Current State</h1>
 					<br />
 					<ul style="list-style-type: none">
-						<li class="fragment">Browser(!!)<sub class="fragment" style="font-size:smaller">10<sup>8</sup>cells mean ~400 MB per property (min 4)</sub></li>
-						<li class="fragment">Sparse Data</li>
-						<li class="fragment">Performance<sub class="fragment" style="font-size:smaller">1*10<sup>6</sup>cells can be displayed easily</sub></li>
-						<li class="fragment">Usability</li>
+						<li class="fragment">Country wide models (Switzerland)</li>
+						<li class="fragment">Prerenderered slices in X,Y,Z</li>
+
 					</ul>
+					<img class="fragment" height="279" width="460" src="img/slices.png" />
 				</section>
 				<section>
 					<h1>Ideas</h1>
@@ -64,23 +82,12 @@
 					</ul>
 				</section>
 				<section data-state="stats">
-					
+
 					<iframe id="ifr" class="stretch" allowfullscreen class="fullscreen" src="../jonas_threejs/cube.html"></iframe>
-					
+
 
 				</section>
-				<section>
-						<h1>Team</h1>
-						<br />
-						<div>
-						<ul style="list-style-type: none">
-							<li><h2>Fabian</h2></li>
-							<li><h2>Daniel</h2></li>
-							<li><h2>Jonas</h2></li>
-							<li><h2>Paul</h2></li>
-						</ul>
-						</div>
-				</section>
+
 			</div>
 		</div>
 
@@ -103,7 +110,7 @@
 			Reveal.addEventListener("stats", function() {
 				var ifr = document.getElementById('ifr');
 				//ifr.setAttribute("src", "https://demo.giga-infosystems.com/webgui/?layers=0.1&layers=0.4&_00=0.9592081428456956&_01=-0.28237719366048114&_02=0.013522544100118567&_03=-3600957.5522302524&_10=0.1455589648358785&_11=0.5343240515802565&_12=0.832652626044478&_13=-3809617.2871395857&_20=-0.24234753238771778&_21=-0.7967188515425615&_22=0.5536305131965646&_23=5751578.854696854&_30=0&_31=0&_32=0&_33=1.0000000000000024&_r0=5418420&_r1=5653560&_r2=101.59800000000001&zscale=3.2&theme=objectColor&grid=false&cor=true");
-				
+
 			});
 		</script>
 	</body>
