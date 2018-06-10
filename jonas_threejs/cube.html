@@ -6,6 +6,7 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link rel="stylesheet" type="text/css" href="style.css" />
 		<link rel="stylesheet" type="text/css" href="nouislider.min.css" />
+
 		<script src="nouislider.min.js"></script>
 		<style>
 			html, body {
@@ -38,38 +39,43 @@
 			  <label class="button" for="fileElem">Select some files</label>
 			</form>
 		</div>
-		<div class="sliders">
-			<div class="slider">
-				<label>Slider #1</label>
-				<div id="slider"></div>
-			</div>
-			<div class="slider">
-				<label>Slider #1</label>
-				<div id="slider2"></div>
-			</div>
-			<div class="slider">
-				<label>Slider #1</label>
-				<div id="slider3"></div>
-			</div>
+		<div class="controlpanel">
+			<div class="sliders">
+					<div class="slider">
+						<label>Slice x</label>
+						<div id="slider"></div>
+					</div>
+					<div class="slider">
+						<label>Slice y</label>
+						<div id="slider2"></div>
+					</div>
+					<div class="slider">
+						<label>Slice z</label>
+						<div id="slider3"></div>
+					</div>
+				</div>
+				<div class="sliders">
+					<div class="slider">
+						<label>Property:</label>
+						<select id="property">
+							<option value="0">None</option>
+							<option value="1">Property #1</option>
+							<option value="2">Property #2</option>
+						</select>
+					</div>
+					<div class="slider">
+						<label>Min</label>
+						<input id="min" name="min" value="" type="text"/>
+					</div>
+					<div class="slider">
+						<label>Max</label>
+						<input id="max" name="max" value="" type="text" />
+						<button onClick="filter();">Filter</button>
+					</div>
+				</div>
+			
 		</div>
-		<div class="sliders">
-			<div class="slider">
-				<label>Property:</label>
-				<select id="property" onchange="changeProperty();">
-					<option value="0">None</option>
-					<option value="1">Property #1</option>
-					<option value="2">Property #2</option>
-				</select>
-			</div>
-			<div class="slider">
-				<label>Min</label>
-				<input id="min" name="min" value="" type="text" onChange="changeMin();"/>
-			</div>
-			<div class="slider">
-				<label>Max</label>
-				<input id="max" name="max" value="" type="text" onChange="changeMax();" />
-			</div>
-		</div>
+		
 		  <button onclick="doThreeJS()">dasdas</button>
 	
 		<div id="info" style="display:none;"><a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - typed arrays - nearest neighbour for 500,000 sprites</div>
@@ -428,18 +434,7 @@
 				controls.movementSpeed = 200;
 				controls.lookSpeed = 0.1;
 
-				// add a skybox background
-				var cubeTextureLoader = new THREE.CubeTextureLoader();
-
-				cubeTextureLoader.setPath( 'textures/cube/skybox/' );
-
-				var cubeTexture = cubeTextureLoader.load( [
-					'px.jpg', 'nx.jpg',
-					'py.jpg', 'ny.jpg',
-					'pz.jpg', 'nz.jpg',
-				] );
-
-				scene.background = cubeTexture;
+			
 
 				//
 

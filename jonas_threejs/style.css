@@ -53,3 +53,14 @@
   display: block;
   font-size: 12px;
 }
+
+.controlpanel {
+  background: #fafafa;
+  border-bottom: 1px solid #cdcdcd;
+  padding: 20px;
+  width: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
