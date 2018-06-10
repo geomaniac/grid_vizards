@@ -254,7 +254,7 @@
 			var slider = document.getElementById('slider');
 
 			noUiSlider.create(slider, {
-				start: [20, 80],
+				start: [0, 100],
 				connect: true,
 				range: {
 					'min': 0,
@@ -265,7 +265,7 @@
 			var slider2 = document.getElementById('slider2');
 
 			noUiSlider.create(slider2, {
-				start: [20, 80],
+				start: [0, 100],
 				connect: true,
 				range: {
 					'min': 0,
@@ -276,7 +276,7 @@
 			var slider3 = document.getElementById('slider3');
 
 			noUiSlider.create(slider3, {
-				start: [20, 80],
+				start: [0, 100],
 				connect: true,
 				range: {
 					'min': 0,
@@ -284,15 +284,26 @@
 				}
 			});
 
+			let g_x_cut_min = 0;
+			let g_x_cut_max = 100;
 			function sliderChange ( values, handle, unencoded, tap, input_pos ) {
-				console.log(values)
+				g_x_cut_min = values[0]
+				g_x_cut_max = values[1]
+				changeProperty()
 			}
-
+			let g_y_cut_min = 0;
+			let g_y_cut_max = 100;
 			function slider2Change ( values, handle, unencoded, tap, input_pos ) {
-				console.log(values)
+				g_y_cut_min = values[0]
+				g_y_cut_max = values[1]
+				changeProperty()
 			}
+			let g_z_cut_min = 0;
+			let g_z_cut_max = 100;
 			function slider3Change ( values, handle, unencoded, tap, input_pos ) {
-				console.log(values)
+				g_z_cut_min = values[0]
+				g_z_cut_max = values[1]
+				changeProperty()
 			}
 
 			function changeProperty() {
@@ -396,16 +407,21 @@
 // ************************* INIT ***********************
 // ******************************************************
 
+			var max_size_x;
+            var max_size_y;
+            var max_size_z;
+			var g_grid_distance_multiplier;
 			function init(i_prop_data) {
 			
 				var prop_max_x = i_prop_data.AXIS_N.AXIS_N_X;
 				var prop_max_y = i_prop_data.AXIS_N.AXIS_N_Y;
 				var prop_max_z = i_prop_data.AXIS_N.AXIS_N_Z;
+				g_grid_distance_multiplier = 3; // defines how far apart single cells are from each other
 				
 				var prop_divisor = 2;
-				var max_size_x = Math.ceil(prop_max_x / prop_divisor);
-				var max_size_y = Math.ceil(prop_max_y / prop_divisor);
-				var max_size_z = Math.ceil(prop_max_z / prop_divisor);
+				max_size_x = Math.ceil(prop_max_x / prop_divisor);
+				max_size_y = Math.ceil(prop_max_y / prop_divisor);
+				max_size_z = Math.ceil(prop_max_z / prop_divisor);
 				
 				var amountOfParticles = 6000000;// max_size_x * max_size_y * max_size_z;
 				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000000 );
@@ -417,6 +433,7 @@
 				controls.lookSpeed = 0.1;
 
 				// add a skybox background
+				/*
 				var cubeTextureLoader = new THREE.CubeTextureLoader();
 
 				cubeTextureLoader.setPath( 'textures/cube/skybox/' );
@@ -428,7 +445,7 @@
 				] );
 
 				scene.background = cubeTexture;
-
+				*/
 				//
 
 				
@@ -512,9 +529,9 @@
 							
 							if(prop_data != -99999)
 							{
-								my_positions.push(3 * curr_x);
-								my_positions.push(3 * curr_y);
-								my_positions.push(3 * curr_z);
+								my_positions.push(g_grid_distance_multiplier * curr_x);
+								my_positions.push(g_grid_distance_multiplier * curr_y);
+								my_positions.push(g_grid_distance_multiplier * curr_z);
 								var final_data = prop_data * prop_value_modifier;
 								my_properties.push(final_data);
 								if(final_data < min)
@@ -533,6 +550,10 @@
 				console.log(grid_point_count);
 				console.log(min);
 				console.log(max);
+				g_filter_min = min;
+				g_filter_max = max;
+				document.getElementById('min').value = min;
+				document.getElementById('max').value = max;
 
 				var measureStart = new Date().getTime();
 
@@ -560,28 +581,52 @@
 			function intern_filterPoints(use_filter) {
 				var min = g_filter_min;
 				var max = g_filter_max;
-				console.log(min)
-				console.log(max)
+				var x_cut_min = g_x_cut_min * max_size_x * g_grid_distance_multiplier / 100.0;
+				var x_cut_max = g_x_cut_max * max_size_x * g_grid_distance_multiplier / 100.0;
+				var y_cut_min = g_y_cut_min * max_size_y * g_grid_distance_multiplier / 100.0;
+				var y_cut_max = g_y_cut_max * max_size_y * g_grid_distance_multiplier / 100.0;
+				var z_cut_min = g_z_cut_min * max_size_z * g_grid_distance_multiplier / 100.0;
+				var z_cut_max = g_z_cut_max * max_size_z * g_grid_distance_multiplier / 100.0;
+				
+				console.log(my_positions[ 0 ])
+				console.log(x_cut_min)
+				console.log(x_cut_max)
+				console.log(y_cut_min)
+				console.log(y_cut_max)
+				console.log(z_cut_min)
+				console.log(z_cut_max)
+				
 				
 				var used_grid_points = 0;
 				// fill all applicable points into array
 				for ( var i_filled = 0; i_filled < my_properties.length; i_filled++ ) {
 					
-					if(!use_filter
-					|| (	my_properties[ i_filled ] < max
-						 && my_properties[ i_filled ] > min))
+					if(	(!use_filter
+						|| (	my_properties[ i_filled ] < max
+							&& 	my_properties[ i_filled ] > min))
+						&&	my_positions[ 3 * i_filled + 0 ] > x_cut_min
+						&&	my_positions[ 3 * i_filled + 0 ] < x_cut_max
+						&&	my_positions[ 3 * i_filled + 1 ] > y_cut_min
+						&&	my_positions[ 3 * i_filled + 1 ] < y_cut_max
+						&&	my_positions[ 3 * i_filled + 2 ] > z_cut_min
+						&&	my_positions[ 3 * i_filled + 2 ] < z_cut_max)
 					{
 						input_pos[ 3 * i_filled + 0 ] = my_positions[ 3 * i_filled + 0 ];
 						input_pos[ 3 * i_filled + 1 ] = my_positions[ 3 * i_filled + 1 ];
 						input_pos[ 3 * i_filled + 2 ] = my_positions[ 3 * i_filled + 2 ];
 						input_props[ i_filled ] = my_properties[ i_filled ];
 						
-						used_grid_points++;
+					}else{
+						input_pos[ 3 * i_filled + 0 ] = -10000000000000;
+						input_pos[ 3 * i_filled + 1 ] = -10000000000000;
+						input_pos[ 3 * i_filled + 2 ] = -10000000000000;
+						input_props[ i_filled ] = 0;
+						
 					}
 				}
 						
 				// empty the rest of the array
-				for ( var i_rest = used_grid_points; i_rest < input_props.length; i_rest++ ) {
+				for ( var i_rest = my_properties.length; i_rest < input_props.length; i_rest++ ) {
 					input_pos[ 3 * i_rest + 0 ] = -10000000000000;
 					input_pos[ 3 * i_rest + 1 ] = -10000000000000;
 					input_pos[ 3 * i_rest + 2 ] = -10000000000000;
@@ -617,12 +662,12 @@
 
 			attribute float prop_attribute;
 
-			varying float vAlpha;
+			varying float vPropertyVal;
 			varying vec4 vExtraData;
 
 			void main() {
 
-				vAlpha = 1.0 - prop_attribute;
+				vPropertyVal = 1.0 - prop_attribute;
 
 				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 
@@ -630,15 +675,16 @@
 				
 				vExtraData.a = 1.0;
 				
+
 				gl_Position = projectionMatrix * mvPosition;
 				
 				
-				//if(-800.0 < mvPosition.z)
-				//{
-				//	vExtraData.a = 0.0;
-				//	gl_PointSize = 0.0;
-				//	gl_Position = vec4(-1000,-1000,-1000,-1000);
-				//}
+				if(300.0 > length(mvPosition))
+				{
+					vExtraData.a = 0.0;
+					gl_PointSize = 0.0;
+					gl_Position = vec4(-1000,-1000,-1000,-1000);
+				}
 
 			}
 
@@ -647,7 +693,7 @@
 		<script type="x-shader/x-fragment" id="fragmentshader">
 			uniform sampler2D tex1;
 
-			varying float vAlpha;
+			varying float vPropertyVal;
 			varying vec4 vExtraData;
 
 			vec3 getRainbowColor (float value, float maxLength){
@@ -671,15 +717,14 @@
 				//	discard;
 					
 				gl_FragColor = vec4(0,0,0,1);
-				float max_value = 120.0;
-				float min_value = -30.0;
-				float i = ((vAlpha - min_value) * 255.0 / max_value);
+				float min_value = -20.0;
+				float max_value = 20.0;
+				float i = ((vPropertyVal - min_value) * 255.0 / max_value);
 				float r = (sin(0.024 * i + 0.0) * 127.0 + 128.0)/255.0;
 				float g = (sin(0.024 * i + 2.0) * 127.0 + 128.0)/255.0;
 				float b = (sin(0.024 * i + 4.0) * 127.0 + 128.0)/255.0;
 				gl_FragColor.rgb =  vec3(r,g,b);
 				gl_FragColor.a = color.a;
-				gl_FragColor.r = ( 1.0 - gl_FragColor.r ) * vAlpha + gl_FragColor.r;
 
 			}
 
