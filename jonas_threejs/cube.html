@@ -4,7 +4,9 @@
 		<title>three.js webgl - nearest neighbour</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-        <link rel="stylesheet" type="text/css" href="style.css" />
+		<link rel="stylesheet" type="text/css" href="style.css" />
+		<link rel="stylesheet" type="text/css" href="nouislider.min.css" />
+		<script src="nouislider.min.js"></script>
 		<style>
 			html, body {
 				width: 100%;
@@ -35,6 +37,20 @@
 			  <input type="file" id="fileElem" multiple accept="image/*" onchange="handleFiles(this.files)">
 			  <label class="button" for="fileElem">Select some files</label>
 			</form>
+		</div>
+		<div class="sliders">
+			<div class="slider">
+				<label>Slider #1</label>
+				<div id="slider"></div>
+			</div>
+			<div class="slider">
+				<label>Slider #1</label>
+				<div id="slider2"></div>
+			</div>
+			<div class="slider">
+				<label>Slider #1</label>
+				<div id="slider3"></div>
+			</div>
 		</div>
 		  <button onclick="doThreeJS()">dasdas</button>
 	
@@ -275,6 +291,57 @@
 
 		</script>
 		<script>
+			
+
+			var slider = document.getElementById('slider');
+
+			noUiSlider.create(slider, {
+				start: [20, 80],
+				connect: true,
+				range: {
+					'min': 0,
+					'max': 100
+				}
+			});
+
+			var slider2 = document.getElementById('slider2');
+
+			noUiSlider.create(slider2, {
+				start: [20, 80],
+				connect: true,
+				range: {
+					'min': 0,
+					'max': 100
+				}
+			});
+
+			var slider3 = document.getElementById('slider3');
+
+			noUiSlider.create(slider3, {
+				start: [20, 80],
+				connect: true,
+				range: {
+					'min': 0,
+					'max': 100
+				}
+			});
+
+			function sliderChange ( values, handle, unencoded, tap, positions ) {
+				console.log(values)
+			}
+
+			function slider2Change ( values, handle, unencoded, tap, positions ) {
+				console.log(values)
+			}
+			function slider3Change ( values, handle, unencoded, tap, positions ) {
+				console.log(values)
+			}
+
+			
+			slider.noUiSlider.on("change", sliderChange);
+			slider2.noUiSlider.on("change", slider2Change);
+			slider3.noUiSlider.on("change", slider3Change);
+
 
 			var camera, scene, renderer;
 			var controls;

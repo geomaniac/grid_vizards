@@ -1,5 +1,5 @@
 <?php
-$fileName = "voxet_newtest_voxet_zinc@@";
+$fileName = "hackathon_grid_property_modeled_logk@@";
         if (file_exists($fileName)) {
             $hex = file_get_contents($fileName);
             $dec = unpack("G*", $hex);
