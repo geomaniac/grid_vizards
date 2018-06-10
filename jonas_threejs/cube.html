@@ -38,36 +38,49 @@
 			  <label class="button" for="fileElem">Select some files</label>
 			</form>
 		</div>
-		<div class="sliders">
-			<div class="slider">
-				<label>Slider #1</label>
-				<div id="slider"></div>
+		<div class="controlpanel">
+			<div class="sliders">
+				<div class="slider">
+					<label>Slice X</label>
+					<div id="slider"></div>
+				</div>
+				<div class="slider">
+					<label>Slice Y</label>
+					<div id="slider2"></div>
+				</div>
+				<div class="slider">
+					<label>Slice Z</label>
+					<div id="slider3"></div>
+				</div>
 			</div>
-			<div class="slider">
-				<label>Slider #1</label>
-				<div id="slider2"></div>
-			</div>
-			<div class="slider">
-				<label>Slider #1</label>
-				<div id="slider3"></div>
-			</div>
-		</div>
-		<div class="sliders">
-			<div class="slider">
-				<label>Property:</label>
-				<select id="property" onchange="changeProperty();">
-					<option value="0">None</option>
-					<option value="1">Property #1</option>
-					<option value="2">Property #2</option>
-				</select>
-			</div>
-			<div class="slider">
-				<label>Min</label>
-				<input id="min" name="min" value="" type="text" onChange="changeMin();"/>
-			</div>
-			<div class="slider">
-				<label>Max</label>
-				<input id="max" name="max" value="" type="text" onChange="changeMax();" />
+			<div class="sliders">
+				<div class="slider slider-flex">
+					<button onClick="filter();">Filter now</button>
+					<div class="container">
+						<label>Property:</label>
+						<select id="property" onchange="changeProperty();">
+							<option value="0">None</option>
+							<option value="1">Property #1</option>
+							<option value="2">Property #2</option>
+						</select>
+					</div>
+				</div>
+				<div class="slider slider-flex">
+					<div class="container">
+					<label>Min</label>
+					<input id="min" name="min" value="" type="text" onChange="changeMin();"/>
+					</div>
+					<div class="container">
+							<label>Max</label>
+							<input id="max" name="max" value="" type="text" onChange="changeMax();" />
+					</div>
+				</div>
+				<div class="slider">
+						
+					<label>Distance clipper</label>
+					<div id="slider4"></div>
+		
+				</div>
 			</div>
 		</div>
 		  <button onclick="doThreeJS()">dasdas</button>
@@ -281,6 +294,17 @@
 				range: {
 					'min': 0,
 					'max': 100
+				}
+			});
+
+			var slider4 = document.getElementById('slider4');
+
+			noUiSlider.create(slider4, {
+				start: [300],
+				connect: true,
+				range: {
+					'min': 0,
+					'max': 1000
 				}
 			});
 

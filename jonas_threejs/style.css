@@ -52,4 +52,69 @@
 .slider label {
   display: block;
   font-size: 12px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  font-weight: 300;
+}
+
+.slider button {
+  display: inline-block;
+  background: rgba(0,0,0,0);
+  padding: 4px 8px;
+  border: 2px solid #3FB8AF;
+  color: #333;
+  min-width: 100px;
+  margin-top: 20px;
+  height: 24px;
+  transition: all .2s linear;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+select {
+  width: 100%;
+  padding: 4px;
+}
+
+.slider button:hover {
+  background: #3FB8AF;
+  color: #fafafa;
+}
+
+.controlpanel {
+  background: #fafafa;
+  border-bottom: 1px solid #cdcdcd;
+  padding: 20px;
+  width: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.slider-flex {
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
+}
+
+.container {
+  width: 48%;
+}
+
+input[type=text] {
+  padding: 2px;
+  outline: 0;
+  width: 100%;
+  transition: all .2s linear;
+  border: 1px solid #cdcdcd;
+  color: #333;
+}
+
+input[type=text]:focus {
+  background: #3FB8AF;
+  border: 1px solid #3FB8AF;
+  color: #fafafa;
 }
