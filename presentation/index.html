@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Grid Vizards</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section data-background="url('img/image.png')">
+
+						<br />
+					<h1 class="text-landing">Grid Vizards</h1>
+
+				</section>
+
+				<section>
+					<h1>Team</h1>
+					<br />
+					<img style="border:0;background-color:#fff" src="img/giga_logo_and_text.png" width="351" height="191" />
+						<ul style="list-style-type: none">
+							<li><h2>Fabian</h2></li>
+							<li><h2>Daniel</h2></li>
+							<li><h2>Jonas</h2></li>
+							<li><h2>Paul</h2></li>
+						</ul>
+				</section>
+
+				<section>
+					<h1>Objective</h1>
+					<br />
+					<p class="fragment">
+						Display 10<sup>8</sup>-10<sup>9</sup> grid  cells meaningful in a browser(!!).
+						<sub class="fragment" style="font-size:smaller">10<sup>8</sup>cells mean ~400 MB per property (min 4)</sub>
+					</p>
+					<div class="fragment">
+						<p class="">
+							Let the user change the representation on the fly.
+						</p>
+
+					</div>
+
+				</section>
+				<section>
+					<h1>Current State</h1>
+					<br />
+					<ul style="list-style-type: none">
+						<li class="fragment">Country wide models (Switzerland)</li>
+						<li class="fragment">Prerenderered slices in X,Y,Z</li>
+
+					</ul>
+					<img class="fragment" height="279" width="460" src="img/slices.png" />
+				</section>
+				<section>
+					<h1>Ideas</h1>
+					<br />
+					<ul style="list-style-type: none">
+						<li class="fragment">Volumetric Rendering</li>
+						<li class="fragment">Level of Detail</li>
+						<li class="fragment">Iso Surfaces<sub class="fragment" style="font-size:smaller">e.g. from the geology and plot properties</sub></li>
+						<li class="fragment">Particles</li>
+						<li class="fragment">Filtering</li>
+						<li class="fragment">Slicing</li>
+					</ul>
+				</section>
+				<section data-state="stats">
+
+					<iframe id="ifr" class="stretch" allowfullscreen class="fullscreen" src="../jonas_threejs/cube.html"></iframe>
+
+
+				</section>
+
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+				]
+			});
+
+			Reveal.addEventListener("stats", function() {
+				var ifr = document.getElementById('ifr');
+				//ifr.setAttribute("src", "https://demo.giga-infosystems.com/webgui/?layers=0.1&layers=0.4&_00=0.9592081428456956&_01=-0.28237719366048114&_02=0.013522544100118567&_03=-3600957.5522302524&_10=0.1455589648358785&_11=0.5343240515802565&_12=0.832652626044478&_13=-3809617.2871395857&_20=-0.24234753238771778&_21=-0.7967188515425615&_22=0.5536305131965646&_23=5751578.854696854&_30=0&_31=0&_32=0&_33=1.0000000000000024&_r0=5418420&_r1=5653560&_r2=101.59800000000001&zscale=3.2&theme=objectColor&grid=false&cor=true");
+
+			});
+		</script>
+	</body>
+</html>
