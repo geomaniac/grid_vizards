@@ -219,6 +219,7 @@
                     })
                 })
             }}} 
+			
         }
 		
 
@@ -227,83 +228,7 @@
 		<script src="three.js"></script>
 		<script src="js/TypedArrayUtils.js"></script>
 		<script src="js/controls/FirstPersonControls.js"></script>
-		<script type="x-shader/x-vertex" id="vertexshader">
 
-		
-		
-		
-			//uniform float zoom;
-
-			attribute float alpha;
-
-			varying float vAlpha;
-			varying vec4 vExtraData;
-
-			void main() {
-
-				vAlpha = 1.0 - alpha;
-
-				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-
-				gl_PointSize = 10.0 * ( 300.0 / -mvPosition.z );
-				
-				vExtraData.a = 1.0;
-				
-				gl_Position = projectionMatrix * mvPosition;
-				
-				
-				//if(-800.0 < mvPosition.z)
-				//{
-				//	vExtraData.a = 0.0;
-				//	gl_PointSize = 0.0;
-				//	gl_Position = vec4(-1000,-1000,-1000,-1000);
-				//}
-
-			}
-
-		</script>
-
-		<script type="x-shader/x-fragment" id="fragmentshader">
-
-			uniform sampler2D tex1;
-
-			varying float vAlpha;
-			varying vec4 vExtraData;
-
-			vec3 getRainbowColor (float value, float maxLength){
-				float i = (value * 255.0 / maxLength);
-				int r = int(sin(0.024 * i + 0.0) * 127.0 + 128.0);
-				int g = int(sin(0.024 * i + 2.0) * 127.0 + 128.0);
-				int b = int(sin(0.024 * i + 4.0) * 127.0 + 128.0);
-				return vec3(r,g,b);
-			}
-			
-			void main() {
-				if(vExtraData.a < 0.1)
-					discard;
-					
-				vec4 color = texture2D( tex1, gl_PointCoord );
-				
-				if(color.a < 0.5)
-					discard;
-				//if((vExtraData.r / vExtraData.g) < 1.0
-				//&& (vExtraData.b / vExtraData.g) < 1.0)
-				//	discard;
-					
-				gl_FragColor = vec4(0,0,0,1);
-				float max_value = 120.0;
-				float min_value = -30.0;
-				float i = ((vAlpha - min_value) * 255.0 / max_value);
-				float r = (sin(0.024 * i + 0.0) * 127.0 + 128.0)/255.0;
-				float g = (sin(0.024 * i + 2.0) * 127.0 + 128.0)/255.0;
-				float b = (sin(0.024 * i + 4.0) * 127.0 + 128.0)/255.0;
-				gl_FragColor.rgb =  vec3(r,g,b);
-				gl_FragColor.a = color.a;
-				gl_FragColor.r = ( 1.0 - gl_FragColor.r ) * vAlpha + gl_FragColor.r;
-
-			}
-
-		</script>
 		<script>
 			
 
@@ -357,6 +282,73 @@
 			slider3.noUiSlider.on("change", slider3Change);
 
 
+// *************************** Grid Code **********************
+// ************************************************************
+			
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				controls.handleResize();
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				//
+				//displayNearest( camera.position );
+
+				controls.update( clock.getDelta() );
+
+				renderer.render( scene, camera );
+
+			}
+
+			function displayNearest( position ) {
+
+				// take the nearest 200 around him. distance^2 'cause we use the manhattan distance and no square is applied in the distance function
+				var imagePositionsInRange = kdtree.nearest( [ position.x, position.y, position.z ], 100, maxDistance );
+
+				// We combine the nearest neighbour with a view frustum. Doesn't make sense if we change the sprites not in our view... well maybe it does. Whatever you want.
+				var _frustum = new THREE.Frustum();
+				var _projScreenMatrix = new THREE.Matrix4();
+
+				_projScreenMatrix.multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse );
+				_frustum.setFromMatrix( _projScreenMatrix );
+
+				for ( var i = 0, il = imagePositionsInRange.length; i < il; i ++ ) {
+
+					var object = imagePositionsInRange[ i ];
+					var objectPoint = new THREE.Vector3().fromArray( object[ 0 ].obj );
+
+					if ( _frustum.containsPoint( objectPoint ) ) {
+
+						var objectIndex = object[ 0 ].pos;
+
+						// set the alpha according to distance
+						alphas[ objectIndex ] = 1.0 / maxDistance * object[ 1 ];
+
+						// update the attribute
+						_particleGeom.attributes.alpha.needsUpdate = true;
+
+					}
+
+				}
+
+			}
+
+			function doThreeJS() {
+				document.getElementById("drop-area").style.display="none";
+				document.getElementById("info").style.display="block";
+				
+				init(file_Metadata);
+				animate();
+			}
+			
 			var camera, scene, renderer;
 			var controls;
 
@@ -372,8 +364,8 @@
 
 
 			
-			
 // ************************* INIT ***********************
+// ******************************************************
 
 			function init(i_prop_data) {
 			
@@ -533,68 +525,83 @@
 
 			}
 
-			function onWindowResize() {
 
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
+		</script>
+		
 
-				renderer.setSize( window.innerWidth, window.innerHeight );
+		
+		<script type="x-shader/x-vertex" id="vertexshader">
+// ************************* Shaders ***********************************
+// *********************************************************************
 
-				controls.handleResize();
-			}
+			//uniform float zoom;
 
-			function animate() {
+			attribute float alpha;
 
-				requestAnimationFrame( animate );
+			varying float vAlpha;
+			varying vec4 vExtraData;
 
-				//
-				//displayNearest( camera.position );
+			void main() {
 
-				controls.update( clock.getDelta() );
+				vAlpha = 1.0 - alpha;
 
-				renderer.render( scene, camera );
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 
-			}
-
-			function displayNearest( position ) {
-
-				// take the nearest 200 around him. distance^2 'cause we use the manhattan distance and no square is applied in the distance function
-				var imagePositionsInRange = kdtree.nearest( [ position.x, position.y, position.z ], 100, maxDistance );
-
-				// We combine the nearest neighbour with a view frustum. Doesn't make sense if we change the sprites not in our view... well maybe it does. Whatever you want.
-				var _frustum = new THREE.Frustum();
-				var _projScreenMatrix = new THREE.Matrix4();
-
-				_projScreenMatrix.multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse );
-				_frustum.setFromMatrix( _projScreenMatrix );
-
-				for ( var i = 0, il = imagePositionsInRange.length; i < il; i ++ ) {
-
-					var object = imagePositionsInRange[ i ];
-					var objectPoint = new THREE.Vector3().fromArray( object[ 0 ].obj );
-
-					if ( _frustum.containsPoint( objectPoint ) ) {
-
-						var objectIndex = object[ 0 ].pos;
-
-						// set the alpha according to distance
-						alphas[ objectIndex ] = 1.0 / maxDistance * object[ 1 ];
-
-						// update the attribute
-						_particleGeom.attributes.alpha.needsUpdate = true;
-
-					}
-
-				}
-
-			}
-
-			function doThreeJS() {
-				document.getElementById("drop-area").style.display="none";
-				document.getElementById("info").style.display="block";
+				gl_PointSize = 10.0 * ( 300.0 / -mvPosition.z );
 				
-				init(file_Metadata);
-				animate();
+				vExtraData.a = 1.0;
+				
+				gl_Position = projectionMatrix * mvPosition;
+				
+				
+				//if(-800.0 < mvPosition.z)
+				//{
+				//	vExtraData.a = 0.0;
+				//	gl_PointSize = 0.0;
+				//	gl_Position = vec4(-1000,-1000,-1000,-1000);
+				//}
+
+			}
+
+		</script>
+
+		<script type="x-shader/x-fragment" id="fragmentshader">
+			uniform sampler2D tex1;
+
+			varying float vAlpha;
+			varying vec4 vExtraData;
+
+			vec3 getRainbowColor (float value, float maxLength){
+				float i = (value * 255.0 / maxLength);
+				int r = int(sin(0.024 * i + 0.0) * 127.0 + 128.0);
+				int g = int(sin(0.024 * i + 2.0) * 127.0 + 128.0);
+				int b = int(sin(0.024 * i + 4.0) * 127.0 + 128.0);
+				return vec3(r,g,b);
+			}
+			
+			void main() {
+				if(vExtraData.a < 0.1)
+					discard;
+					
+				vec4 color = texture2D( tex1, gl_PointCoord );
+				
+				if(color.a < 0.5)
+					discard;
+				//if((vExtraData.r / vExtraData.g) < 1.0
+				//&& (vExtraData.b / vExtraData.g) < 1.0)
+				//	discard;
+					
+				gl_FragColor = vec4(0,0,0,1);
+				float max_value = 120.0;
+				float min_value = -30.0;
+				float i = ((vAlpha - min_value) * 255.0 / max_value);
+				float r = (sin(0.024 * i + 0.0) * 127.0 + 128.0)/255.0;
+				float g = (sin(0.024 * i + 2.0) * 127.0 + 128.0)/255.0;
+				float b = (sin(0.024 * i + 4.0) * 127.0 + 128.0)/255.0;
+				gl_FragColor.rgb =  vec3(r,g,b);
+				gl_FragColor.a = color.a;
+				gl_FragColor.r = ( 1.0 - gl_FragColor.r ) * vAlpha + gl_FragColor.r;
+
 			}
 
 		</script>
