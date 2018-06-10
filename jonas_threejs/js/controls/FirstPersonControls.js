@@ -74,51 +74,6 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 
 	};
 
-	this.onMouseDown = function ( event ) {
-
-		if ( this.domElement !== document ) {
-
-			this.domElement.focus();
-
-		}
-
-		event.preventDefault();
-		event.stopPropagation();
-
-		if ( this.activeLook ) {
-
-			switch ( event.button ) {
-
-				case 0: this.moveForward = true; break;
-				case 2: this.moveBackward = true; break;
-
-			}
-
-		}
-
-		this.mouseDragOn = true;
-
-	};
-
-	this.onMouseUp = function ( event ) {
-
-		event.preventDefault();
-		event.stopPropagation();
-
-		if ( this.activeLook ) {
-
-			switch ( event.button ) {
-
-				case 0: this.moveForward = false; break;
-				case 2: this.moveBackward = false; break;
-
-			}
-
-		}
-
-		this.mouseDragOn = false;
-
-	};
 
 	this.onMouseMove = function ( event ) {
 
