@@ -411,6 +411,7 @@
             var max_size_y;
             var max_size_z;
 			var g_grid_distance_multiplier;
+			var pointShaderMaterial;
 			function init(i_prop_data) {
 			
 				var prop_max_x = i_prop_data.AXIS_N.AXIS_N_X;
@@ -418,7 +419,7 @@
 				var prop_max_z = i_prop_data.AXIS_N.AXIS_N_Z;
 				g_grid_distance_multiplier = 3; // defines how far apart single cells are from each other
 				
-				var prop_divisor = 2;
+				var prop_divisor = 1;
 				max_size_x = Math.ceil(prop_max_x / prop_divisor);
 				max_size_y = Math.ceil(prop_max_y / prop_divisor);
 				max_size_z = Math.ceil(prop_max_z / prop_divisor);
@@ -465,10 +466,11 @@
 				imagePreviewTexture.minFilter = THREE.LinearMipMapLinearFilter;
 				imagePreviewTexture.magFilter = THREE.LinearFilter;
 
-				var pointShaderMaterial = new THREE.ShaderMaterial( {
+				pointShaderMaterial = new THREE.ShaderMaterial( {
 					uniforms: {
 						tex1: { value: imagePreviewTexture },
-						zoom: { value: 9.0 }
+						min_distance: { value: 300.0 },
+						max_distance: { value: 1000000.0 }
 					},
 					vertexShader:   document.getElementById( 'vertexshader' ).textContent,
 					fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
@@ -658,7 +660,8 @@
 // ************************* Shaders ***********************************
 // *********************************************************************
 
-			//uniform float zoom;
+			uniform float min_distance;
+			uniform float max_distance;
 
 			attribute float prop_attribute;
 
@@ -678,8 +681,8 @@
 
 				gl_Position = projectionMatrix * mvPosition;
 				
-				
-				if(300.0 > length(mvPosition))
+				if(min_distance > length(mvPosition)
+				|| max_distance < length(mvPosition))
 				{
 					vExtraData.a = 0.0;
 					gl_PointSize = 0.0;
