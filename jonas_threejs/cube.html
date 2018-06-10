@@ -6,7 +6,6 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link rel="stylesheet" type="text/css" href="style.css" />
 		<link rel="stylesheet" type="text/css" href="nouislider.min.css" />
-
 		<script src="nouislider.min.js"></script>
 		<style>
 			html, body {
@@ -41,61 +40,55 @@
 		</div>
 		<div class="controlpanel">
 			<div class="sliders">
-					<div class="slider">
-						<label>Slice x</label>
-						<div id="slider"></div>
-					</div>
-					<div class="slider">
-						<label>Slice y</label>
-						<div id="slider2"></div>
-					</div>
-					<div class="slider">
-						<label>Slice z</label>
-						<div id="slider3"></div>
-					</div>
+				<div class="slider">
+					<label>Slice X</label>
+					<div id="slider"></div>
 				</div>
-				<div class="sliders">
-					<div class="slider">
+				<div class="slider">
+					<label>Slice Y</label>
+					<div id="slider2"></div>
+				</div>
+				<div class="slider">
+					<label>Slice Z</label>
+					<div id="slider3"></div>
+				</div>
+			</div>
+			<div class="sliders">
+				<div class="slider slider-flex">
+					<button onClick="filter();">Filter now</button>
+					<div class="container">
 						<label>Property:</label>
-						<select id="property">
+						<select id="property" onchange="changeProperty();">
 							<option value="0">None</option>
 							<option value="1">Property #1</option>
 							<option value="2">Property #2</option>
 						</select>
 					</div>
-					<div class="slider">
-						<label>Min</label>
-						<input id="min" name="min" value="" type="text"/>
+				</div>
+				<div class="slider slider-flex">
+					<div class="container">
+					<label>Min</label>
+					<input id="min" name="min" value="" type="text" onChange="changeMin();"/>
 					</div>
-					<div class="slider">
-						<label>Max</label>
-						<input id="max" name="max" value="" type="text" />
-						<button onClick="filter();">Filter</button>
+					<div class="container">
+							<label>Max</label>
+							<input id="max" name="max" value="" type="text" onChange="changeMax();" />
 					</div>
 				</div>
-			
-		</div>
+				<div class="slider">
+						
+					<label>Distance clipper</label>
+					<div id="slider4"></div>
 		
+				</div>
+			</div>
+		</div>
 		  <button onclick="doThreeJS()">dasdas</button>
 	
 		<div id="info" style="display:none;"><a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - typed arrays - nearest neighbour for 500,000 sprites</div>
 
 		<script type="text/javascript">
 
-			function changeMin() {
-				let min = document.getElementById('min').value
-
-			}
-
-			function changeProperty() {
-				let property = document.getElementById('property').value
-
-			}
-
-			function changeMax() {
-				let max = document.getElementById('max').value
-					
-			}
 
 
             let file_Metadata = {}
@@ -258,6 +251,7 @@
                     })
                 })
             }}} 
+			
         }
 		
 
@@ -266,90 +260,14 @@
 		<script src="three.js"></script>
 		<script src="js/TypedArrayUtils.js"></script>
 		<script src="js/controls/FirstPersonControls.js"></script>
-		<script type="x-shader/x-vertex" id="vertexshader">
 
-		
-		
-		
-			//uniform float zoom;
-
-			attribute float alpha;
-
-			varying float vAlpha;
-			varying vec4 vExtraData;
-
-			void main() {
-
-				vAlpha = 1.0 - alpha;
-
-				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-
-				gl_PointSize = 10.0 * ( 300.0 / -mvPosition.z );
-				
-				vExtraData.a = 1.0;
-				
-				gl_Position = projectionMatrix * mvPosition;
-				
-				
-				//if(-800.0 < mvPosition.z)
-				//{
-				//	vExtraData.a = 0.0;
-				//	gl_PointSize = 0.0;
-				//	gl_Position = vec4(-1000,-1000,-1000,-1000);
-				//}
-
-			}
-
-		</script>
-
-		<script type="x-shader/x-fragment" id="fragmentshader">
-
-			uniform sampler2D tex1;
-
-			varying float vAlpha;
-			varying vec4 vExtraData;
-
-			vec3 getRainbowColor (float value, float maxLength){
-				float i = (value * 255.0 / maxLength);
-				int r = int(sin(0.024 * i + 0.0) * 127.0 + 128.0);
-				int g = int(sin(0.024 * i + 2.0) * 127.0 + 128.0);
-				int b = int(sin(0.024 * i + 4.0) * 127.0 + 128.0);
-				return vec3(r,g,b);
-			}
-			
-			void main() {
-				if(vExtraData.a < 0.1)
-					discard;
-					
-				vec4 color = texture2D( tex1, gl_PointCoord );
-				
-				if(color.a < 0.5)
-					discard;
-				//if((vExtraData.r / vExtraData.g) < 1.0
-				//&& (vExtraData.b / vExtraData.g) < 1.0)
-				//	discard;
-					
-				gl_FragColor = vec4(0,0,0,1);
-				float max_value = 120.0;
-				float min_value = -30.0;
-				float i = ((vAlpha - min_value) * 255.0 / max_value);
-				float r = (sin(0.024 * i + 0.0) * 127.0 + 128.0)/255.0;
-				float g = (sin(0.024 * i + 2.0) * 127.0 + 128.0)/255.0;
-				float b = (sin(0.024 * i + 4.0) * 127.0 + 128.0)/255.0;
-				gl_FragColor.rgb =  vec3(r,g,b);
-				gl_FragColor.a = color.a;
-				gl_FragColor.r = ( 1.0 - gl_FragColor.r ) * vAlpha + gl_FragColor.r;
-
-			}
-
-		</script>
 		<script>
 			
 
 			var slider = document.getElementById('slider');
 
 			noUiSlider.create(slider, {
-				start: [20, 80],
+				start: [0, 100],
 				connect: true,
 				range: {
 					'min': 0,
@@ -360,7 +278,7 @@
 			var slider2 = document.getElementById('slider2');
 
 			noUiSlider.create(slider2, {
-				start: [20, 80],
+				start: [0, 100],
 				connect: true,
 				range: {
 					'min': 0,
@@ -371,7 +289,7 @@
 			var slider3 = document.getElementById('slider3');
 
 			noUiSlider.create(slider3, {
-				start: [20, 80],
+				start: [0, 100],
 				connect: true,
 				range: {
 					'min': 0,
@@ -379,30 +297,129 @@
 				}
 			});
 
-			function sliderChange ( values, handle, unencoded, tap, positions ) {
-				console.log(values)
+			var slider4 = document.getElementById('slider4');
+
+			noUiSlider.create(slider4, {
+				start: [300],
+				connect: true,
+				range: {
+					'min': 0,
+					'max': 1000
+				}
+			});
+
+			let g_x_cut_min = 0;
+			let g_x_cut_max = 100;
+			function sliderChange ( values, handle, unencoded, tap, input_pos ) {
+				g_x_cut_min = values[0]
+				g_x_cut_max = values[1]
+				changeProperty()
+			}
+			let g_y_cut_min = 0;
+			let g_y_cut_max = 100;
+			function slider2Change ( values, handle, unencoded, tap, input_pos ) {
+				g_y_cut_min = values[0]
+				g_y_cut_max = values[1]
+				changeProperty()
+			}
+			let g_z_cut_min = 0;
+			let g_z_cut_max = 100;
+			function slider3Change ( values, handle, unencoded, tap, input_pos ) {
+				g_z_cut_min = values[0]
+				g_z_cut_max = values[1]
+				changeProperty()
 			}
 
-			function slider2Change ( values, handle, unencoded, tap, positions ) {
-				console.log(values)
+			function changeProperty() {
+				let property = document.getElementById('property').value
+				if(property === 0){
+					// no filtering for 0 ("None")
+					console.log("ordered filtering")
+					fillAllPoints()
+				}else{
+					console.log("ordered filtering")
+					filterPoints()
+				}
 			}
-			function slider3Change ( values, handle, unencoded, tap, positions ) {
-				console.log(values)
+			
+			let g_filter_min = 0;
+			function changeMin() {
+				g_filter_min = document.getElementById('min').value
 			}
-
+			let g_filter_max = 0;
+			function changeMax() {
+				g_filter_max = document.getElementById('max').value
+			}
 			
 			slider.noUiSlider.on("change", sliderChange);
 			slider2.noUiSlider.on("change", slider2Change);
 			slider3.noUiSlider.on("change", slider3Change);
 
 
+// *************************** Grid Code **********************
+// ************************************************************
+			
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				controls.handleResize();
+			}
+
+
+			function displayNearest( position ) {
+
+				// take the nearest 200 around him. distance^2 'cause we use the manhattan distance and no square is applied in the distance function
+				var imagePositionsInRange = kdtree.nearest( [ position.x, position.y, position.z ], 100, maxDistance );
+
+				// We combine the nearest neighbour with a view frustum. Doesn't make sense if we change the sprites not in our view... well maybe it does. Whatever you want.
+				var _frustum = new THREE.Frustum();
+				var _projScreenMatrix = new THREE.Matrix4();
+
+				_projScreenMatrix.multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse );
+				_frustum.setFromMatrix( _projScreenMatrix );
+
+				for ( var i = 0, il = imagePositionsInRange.length; i < il; i ++ ) {
+
+					var object = imagePositionsInRange[ i ];
+					var objectPoint = new THREE.Vector3().fromArray( object[ 0 ].obj );
+
+					if ( _frustum.containsPoint( objectPoint ) ) {
+
+						var objectIndex = object[ 0 ].pos;
+
+						// set the prop_attribute according to distance
+						input_props[ objectIndex ] = 1.0 / maxDistance * object[ 1 ];
+
+						// update the attribute
+						_particleGeom.attributes.prop_attribute.needsUpdate = true;
+
+					}
+
+				}
+
+			}
+
+			function doThreeJS() {
+				document.getElementById("drop-area").style.display="none";
+				document.getElementById("info").style.display="block";
+				
+				init(file_Metadata);
+				animate();
+			}
+			
 			var camera, scene, renderer;
 			var controls;
 
 
 			
 			var maxDistance = Math.pow( 120, 2 );
-			var positions, alphas, particles, _particleGeom;
+			var input_pos, input_props;
+			var my_positions, my_properties;
+			var particles, _particleGeom;
 
 			var clock = new THREE.Clock();
 
@@ -411,19 +428,24 @@
 
 
 			
-			
 // ************************* INIT ***********************
+// ******************************************************
 
+			var max_size_x;
+            var max_size_y;
+            var max_size_z;
+			var g_grid_distance_multiplier;
 			function init(i_prop_data) {
 			
 				var prop_max_x = i_prop_data.AXIS_N.AXIS_N_X;
 				var prop_max_y = i_prop_data.AXIS_N.AXIS_N_Y;
 				var prop_max_z = i_prop_data.AXIS_N.AXIS_N_Z;
+				g_grid_distance_multiplier = 3; // defines how far apart single cells are from each other
 				
-				var prop_divisor = 1;
-				var max_size_x = Math.ceil(prop_max_x / prop_divisor);
-				var max_size_y = Math.ceil(prop_max_y / prop_divisor);
-				var max_size_z = Math.ceil(prop_max_z / prop_divisor);
+				var prop_divisor = 2;
+				max_size_x = Math.ceil(prop_max_x / prop_divisor);
+				max_size_y = Math.ceil(prop_max_y / prop_divisor);
+				max_size_z = Math.ceil(prop_max_z / prop_divisor);
 				
 				var amountOfParticles = 6000000;// max_size_x * max_size_y * max_size_z;
 				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000000 );
@@ -434,8 +456,20 @@
 				controls.movementSpeed = 200;
 				controls.lookSpeed = 0.1;
 
-			
+				// add a skybox background
+				/*
+				var cubeTextureLoader = new THREE.CubeTextureLoader();
 
+				cubeTextureLoader.setPath( 'textures/cube/skybox/' );
+
+				var cubeTexture = cubeTextureLoader.load( [
+					'px.jpg', 'nx.jpg',
+					'py.jpg', 'ny.jpg',
+					'pz.jpg', 'nz.jpg',
+				] );
+
+				scene.background = cubeTexture;
+				*/
 				//
 
 				
@@ -476,12 +510,14 @@
 				var data = JSON.parse(localStorage.getItem('data'));
 				console.log(data);
 				
-				positions = new Float32Array( amountOfParticles * 3 );
-				alphas = new Float32Array( amountOfParticles );
+				my_positions = [];
+				my_properties = [];
+				input_pos = new Float32Array( amountOfParticles * 3 );
+				input_props = new Float32Array( amountOfParticles );
 
 				_particleGeom = new THREE.BufferGeometry();
-				_particleGeom.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
-				_particleGeom.addAttribute( 'alpha', new THREE.BufferAttribute( alphas, 1 ) );
+				_particleGeom.addAttribute( 'position', new THREE.BufferAttribute( input_pos, 3 ) );
+				_particleGeom.addAttribute( 'prop_attribute', new THREE.BufferAttribute( input_props, 1 ) );
 
 				particles = new THREE.Points( _particleGeom, pointShaderMaterial );
 				particles.material.depthWrite = true;
@@ -509,22 +545,19 @@
 							var prop_y = y_offset + curr_y * prop_LOD_modifier;
 							var prop_z = z_offset + curr_z * prop_LOD_modifier;
 							var prop_index = (prop_x + prop_y * prop_max_x + prop_z * prop_max_x * prop_max_y);
-							var prop_data =  i_prop_data.properties[0].values[ prop_index ];
+							var prop_data =  i_prop_data.properties[1].values[ prop_index ];
 							
 							
 							//var own_grid_index = (curr_x + curr_y * max_size_x + curr_z * max_size_x * max_size_y);
 							
 							
-							if(prop_data == -99999)
+							if(prop_data != -99999)
 							{
-
-								
-							}else{
-								positions[ 3 * grid_point_count + 0 ] = 3 * curr_x;
-								positions[ 3 * grid_point_count + 1 ] = 3 * curr_y;
-								positions[ 3 * grid_point_count + 2 ] = 3 * curr_z;
+								my_positions.push(g_grid_distance_multiplier * curr_x);
+								my_positions.push(g_grid_distance_multiplier * curr_y);
+								my_positions.push(g_grid_distance_multiplier * curr_z);
 								var final_data = prop_data * prop_value_modifier;
-								alphas[ grid_point_count ] = final_data;
+								my_properties.push(final_data);
 								if(final_data < min)
 									min = final_data;
 								if(final_data > max)
@@ -534,43 +567,100 @@
 						}
 					}
 				}
-				
-				for ( var i_rest = grid_point_count; i_rest < amountOfParticles; i_rest++ ) {
-					positions[ 3 * i_rest + 0 ] = -100000;
-					positions[ 3 * i_rest + 1 ] = -100000;
-					positions[ 3 * i_rest + 2 ] = -100000;
-					alphas[ i_rest ] = 0;
-				}
+				//i_prop_data.properties[0].values = []
+	
+				fillAllPoints();
 				
 				console.log(grid_point_count);
 				console.log(min);
 				console.log(max);
+				g_filter_min = min;
+				g_filter_max = max;
+				document.getElementById('min').value = min;
+				document.getElementById('max').value = max;
 
 				var measureStart = new Date().getTime();
 
 				
 				// creating the kdtree takes a lot of time to execute, in turn the nearest neighbour search will be much faster
-				//kdtree = new THREE.TypedArrayUtils.Kdtree( positions, distanceFunction, 3 );
+				//kdtree = new THREE.TypedArrayUtils.Kdtree( input_pos, distanceFunction, 3 );
 
 				//console.log( 'TIME building kdtree', new Date().getTime() - measureStart );
 
-				// display particles after the kd-tree was generated and the sorting of the positions-array is done
+				// display particles after the kd-tree was generated and the sorting of the input_pos-array is done
 				scene.add( particles );
 
 				window.addEventListener( 'resize', onWindowResize, false );
 
 			}
 
-			function onWindowResize() {
-
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
-
-				renderer.setSize( window.innerWidth, window.innerHeight );
-
-				controls.handleResize();
+			function fillAllPoints() {
+				intern_filterPoints(false);
 			}
-
+			
+			function filterPoints() {
+				intern_filterPoints(true);
+			}
+			
+			function intern_filterPoints(use_filter) {
+				var min = g_filter_min;
+				var max = g_filter_max;
+				var x_cut_min = g_x_cut_min * max_size_x * g_grid_distance_multiplier / 100.0;
+				var x_cut_max = g_x_cut_max * max_size_x * g_grid_distance_multiplier / 100.0;
+				var y_cut_min = g_y_cut_min * max_size_y * g_grid_distance_multiplier / 100.0;
+				var y_cut_max = g_y_cut_max * max_size_y * g_grid_distance_multiplier / 100.0;
+				var z_cut_min = g_z_cut_min * max_size_z * g_grid_distance_multiplier / 100.0;
+				var z_cut_max = g_z_cut_max * max_size_z * g_grid_distance_multiplier / 100.0;
+				
+				console.log(my_positions[ 0 ])
+				console.log(x_cut_min)
+				console.log(x_cut_max)
+				console.log(y_cut_min)
+				console.log(y_cut_max)
+				console.log(z_cut_min)
+				console.log(z_cut_max)
+				
+				
+				var used_grid_points = 0;
+				// fill all applicable points into array
+				for ( var i_filled = 0; i_filled < my_properties.length; i_filled++ ) {
+					
+					if(	(!use_filter
+						|| (	my_properties[ i_filled ] < max
+							&& 	my_properties[ i_filled ] > min))
+						&&	my_positions[ 3 * i_filled + 0 ] > x_cut_min
+						&&	my_positions[ 3 * i_filled + 0 ] < x_cut_max
+						&&	my_positions[ 3 * i_filled + 1 ] > y_cut_min
+						&&	my_positions[ 3 * i_filled + 1 ] < y_cut_max
+						&&	my_positions[ 3 * i_filled + 2 ] > z_cut_min
+						&&	my_positions[ 3 * i_filled + 2 ] < z_cut_max)
+					{
+						input_pos[ 3 * i_filled + 0 ] = my_positions[ 3 * i_filled + 0 ];
+						input_pos[ 3 * i_filled + 1 ] = my_positions[ 3 * i_filled + 1 ];
+						input_pos[ 3 * i_filled + 2 ] = my_positions[ 3 * i_filled + 2 ];
+						input_props[ i_filled ] = my_properties[ i_filled ];
+						
+					}else{
+						input_pos[ 3 * i_filled + 0 ] = -10000000000000;
+						input_pos[ 3 * i_filled + 1 ] = -10000000000000;
+						input_pos[ 3 * i_filled + 2 ] = -10000000000000;
+						input_props[ i_filled ] = 0;
+						
+					}
+				}
+						
+				// empty the rest of the array
+				for ( var i_rest = my_properties.length; i_rest < input_props.length; i_rest++ ) {
+					input_pos[ 3 * i_rest + 0 ] = -10000000000000;
+					input_pos[ 3 * i_rest + 1 ] = -10000000000000;
+					input_pos[ 3 * i_rest + 2 ] = -10000000000000;
+					input_props[ i_rest ] = 0;
+				}
+			
+				_particleGeom.attributes.position.needsUpdate = true;
+			}
+			
+			
 			function animate() {
 
 				requestAnimationFrame( animate );
@@ -584,45 +674,82 @@
 
 			}
 
-			function displayNearest( position ) {
+		</script>
+		
 
-				// take the nearest 200 around him. distance^2 'cause we use the manhattan distance and no square is applied in the distance function
-				var imagePositionsInRange = kdtree.nearest( [ position.x, position.y, position.z ], 100, maxDistance );
+		
+		<script type="x-shader/x-vertex" id="vertexshader">
+// ************************* Shaders ***********************************
+// *********************************************************************
 
-				// We combine the nearest neighbour with a view frustum. Doesn't make sense if we change the sprites not in our view... well maybe it does. Whatever you want.
-				var _frustum = new THREE.Frustum();
-				var _projScreenMatrix = new THREE.Matrix4();
+			//uniform float zoom;
 
-				_projScreenMatrix.multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse );
-				_frustum.setFromMatrix( _projScreenMatrix );
+			attribute float prop_attribute;
 
-				for ( var i = 0, il = imagePositionsInRange.length; i < il; i ++ ) {
+			varying float vPropertyVal;
+			varying vec4 vExtraData;
 
-					var object = imagePositionsInRange[ i ];
-					var objectPoint = new THREE.Vector3().fromArray( object[ 0 ].obj );
+			void main() {
 
-					if ( _frustum.containsPoint( objectPoint ) ) {
+				vPropertyVal = 1.0 - prop_attribute;
 
-						var objectIndex = object[ 0 ].pos;
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 
-						// set the alpha according to distance
-						alphas[ objectIndex ] = 1.0 / maxDistance * object[ 1 ];
+				gl_PointSize = 10.0 * ( 300.0 / -mvPosition.z );
+				
+				vExtraData.a = 1.0;
+				
 
-						// update the attribute
-						_particleGeom.attributes.alpha.needsUpdate = true;
-
-					}
-
+				gl_Position = projectionMatrix * mvPosition;
+				
+				
+				if(300.0 > length(mvPosition))
+				{
+					vExtraData.a = 0.0;
+					gl_PointSize = 0.0;
+					gl_Position = vec4(-1000,-1000,-1000,-1000);
 				}
 
 			}
 
-			function doThreeJS() {
-				document.getElementById("drop-area").style.display="none";
-				document.getElementById("info").style.display="block";
+		</script>
+
+		<script type="x-shader/x-fragment" id="fragmentshader">
+			uniform sampler2D tex1;
+
+			varying float vPropertyVal;
+			varying vec4 vExtraData;
+
+			vec3 getRainbowColor (float value, float maxLength){
+				float i = (value * 255.0 / maxLength);
+				int r = int(sin(0.024 * i + 0.0) * 127.0 + 128.0);
+				int g = int(sin(0.024 * i + 2.0) * 127.0 + 128.0);
+				int b = int(sin(0.024 * i + 4.0) * 127.0 + 128.0);
+				return vec3(r,g,b);
+			}
+			
+			void main() {
+				if(vExtraData.a < 0.1)
+					discard;
+					
+				vec4 color = texture2D( tex1, gl_PointCoord );
 				
-				init(file_Metadata);
-				animate();
+				if(color.a < 0.5)
+					discard;
+				//if((vExtraData.r / vExtraData.g) < 1.0
+				//&& (vExtraData.b / vExtraData.g) < 1.0)
+				//	discard;
+					
+				gl_FragColor = vec4(0,0,0,1);
+				float min_value = -20.0;
+				float max_value = 20.0;
+				float i = ((vPropertyVal - min_value) * 255.0 / max_value);
+				float r = (sin(0.024 * i + 0.0) * 127.0 + 128.0)/255.0;
+				float g = (sin(0.024 * i + 2.0) * 127.0 + 128.0)/255.0;
+				float b = (sin(0.024 * i + 4.0) * 127.0 + 128.0)/255.0;
+				gl_FragColor.rgb =  vec3(r,g,b);
+				gl_FragColor.a = color.a;
+
 			}
 
 		</script>

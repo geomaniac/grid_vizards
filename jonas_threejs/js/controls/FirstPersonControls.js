@@ -82,14 +82,23 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 
 		}
 
-		event.preventDefault();
-		event.stopPropagation();
 
 		if ( this.activeLook ) {
 
 			switch ( event.button ) {
 
-				case 0: this.moveForward = true; break;
+				case 0: 
+					if ( this.domElement === document ) {
+
+						this.mouseX = event.pageX - this.viewHalfX;
+						this.mouseY = event.pageY - this.viewHalfY;
+
+					} else {
+
+						this.mouseX = event.pageX - this.domElement.offsetLeft - this.viewHalfX;
+						this.mouseY = event.pageY - this.domElement.offsetTop - this.viewHalfY;
+
+					} break;
 				case 2: this.moveBackward = true; break;
 
 			}
@@ -102,14 +111,15 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 
 	this.onMouseUp = function ( event ) {
 
-		event.preventDefault();
-		event.stopPropagation();
 
 		if ( this.activeLook ) {
 
 			switch ( event.button ) {
 
-				case 0: this.moveForward = false; break;
+				case 0: 
+					this.mouseX = 0;
+				    this.mouseY = 0;
+					break;
 				case 2: this.moveBackward = false; break;
 
 			}
@@ -122,17 +132,6 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 
 	this.onMouseMove = function ( event ) {
 
-		if ( this.domElement === document ) {
-
-			this.mouseX = event.pageX - this.viewHalfX;
-			this.mouseY = event.pageY - this.viewHalfY;
-
-		} else {
-
-			this.mouseX = event.pageX - this.domElement.offsetLeft - this.viewHalfX;
-			this.mouseY = event.pageY - this.domElement.offsetTop - this.viewHalfY;
-
-		}
 
 	};
 
