@@ -52,11 +52,44 @@
 				<div id="slider3"></div>
 			</div>
 		</div>
+		<div class="sliders">
+			<div class="slider">
+				<label>Property:</label>
+				<select id="property" onchange="changeProperty();">
+					<option value="0">None</option>
+					<option value="1">Property #1</option>
+					<option value="2">Property #2</option>
+				</select>
+			</div>
+			<div class="slider">
+				<label>Min</label>
+				<input id="min" name="min" value="" type="text" onChange="changeMin();"/>
+			</div>
+			<div class="slider">
+				<label>Max</label>
+				<input id="max" name="max" value="" type="text" onChange="changeMax();" />
+			</div>
+		</div>
 		  <button onclick="doThreeJS()">dasdas</button>
 	
 		<div id="info" style="display:none;"><a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - typed arrays - nearest neighbour for 500,000 sprites</div>
 
 		<script type="text/javascript">
+
+			function changeMin() {
+				let min = document.getElementById('min').value
+
+			}
+
+			function changeProperty() {
+				let property = document.getElementById('property').value
+
+			}
+
+			function changeMax() {
+				let max = document.getElementById('max').value
+					
+			}
 
 
             let file_Metadata = {}
