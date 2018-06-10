@@ -49,7 +49,6 @@ GRID_VIZARDS.SingleCubes = function (scene, grid) {
         var positions = [];
         var colors = [];
         let count = 0;
-        console.log(this.grid.props[0].data[0]);
         for (z = 0; z < this.grid.cell_count.z; ++z) {
             for (y = 0; y < this.grid.cell_count.y; ++y) {
                 for (x = 0; x < this.grid.cell_count.x; ++x) {
@@ -67,7 +66,6 @@ GRID_VIZARDS.SingleCubes = function (scene, grid) {
                 }
             }
         }
-        console.log(count);
         geometry.addAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
         geometry.addAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
         geometry.computeBoundingSphere();

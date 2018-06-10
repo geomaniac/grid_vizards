@@ -17,18 +17,8 @@ GRID_VIZARDS.data_array = function (func) {
     req.onload = function () {
         var arrayBuffer = req.response;
         if (arrayBuffer) {
-            console.log(arrayBuffer)
             var byteArray = new Float32Array(arrayBuffer);
-            console.log(byteArray.length)
-            data = Array.prototype.slice.call(byteArray);
-            var min = 999999999999;
-            var max = -999999999999;
-            for(var i = 0, l = data.length; i < l; ++i) {
-                if(data[i] === -99999) continue;
-                min = Math.min(min, data[i]);
-                max = Math.max(max, data[i]);
-            }
-            console.log(min);console.log(max);
+            data = Array.from(byteArray);
         }
         func(data);
     };
