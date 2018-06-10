@@ -406,7 +406,7 @@
 				var prop_max_y = i_prop_data.AXIS_N.AXIS_N_Y;
 				var prop_max_z = i_prop_data.AXIS_N.AXIS_N_Z;
 				
-				var prop_divisor = 1;
+				var prop_divisor = 2;
 				var max_size_x = Math.ceil(prop_max_x / prop_divisor);
 				var max_size_y = Math.ceil(prop_max_y / prop_divisor);
 				var max_size_z = Math.ceil(prop_max_z / prop_divisor);
@@ -506,7 +506,7 @@
 							var prop_y = y_offset + curr_y * prop_LOD_modifier;
 							var prop_z = z_offset + curr_z * prop_LOD_modifier;
 							var prop_index = (prop_x + prop_y * prop_max_x + prop_z * prop_max_x * prop_max_y);
-							var prop_data =  i_prop_data.properties[0].values[ prop_index ];
+							var prop_data =  i_prop_data.properties[1].values[ prop_index ];
 							
 							
 							//var own_grid_index = (curr_x + curr_y * max_size_x + curr_z * max_size_x * max_size_y);
@@ -533,9 +533,9 @@
 				}
 				
 				for ( var i_rest = grid_point_count; i_rest < amountOfParticles; i_rest++ ) {
-					positions[ 3 * i_rest + 0 ] = -100000;
-					positions[ 3 * i_rest + 1 ] = -100000;
-					positions[ 3 * i_rest + 2 ] = -100000;
+					positions[ 3 * i_rest + 0 ] = -10000000000000;
+					positions[ 3 * i_rest + 1 ] = -10000000000000;
+					positions[ 3 * i_rest + 2 ] = -10000000000000;
 					alphas[ i_rest ] = 0;
 				}
 				
